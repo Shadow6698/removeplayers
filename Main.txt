@@ -1,0 +1,54 @@
+-- GUI móvel para sumir e reaparecer jogadores do seu mundo (com botão menor)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Criar GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "DesaparecerPlayersGUI"
+
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(0, 120, 0, 35) -- BOTÃO MENOR
+Button.Position = UDim2.new(0.4, 0, 0.4, 0)
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Text = "🫥 Sumir"
+Button.Font = Enum.Font.SourceSansBold
+Button.TextSize = 18
+Button.Parent = ScreenGui
+Button.Active = true
+Button.Draggable = true
+
+local sumindo = false
+local armazenados = {}
+
+-- Função para sumir jogadores
+local function sumirJogadores()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character.Parent == workspace then
+            armazenados[player.Name] = player.Character
+            player.Character.Parent = nil
+        end
+    end
+end
+
+-- Função para reaparecer jogadores
+local function reaparecerJogadores()
+    for nome, character in pairs(armazenados) do
+        if Players:FindFirstChild(nome) and character then
+            character.Parent = workspace
+        end
+    end
+    armazenados = {}
+end
+
+-- Alternar entre sumir e reaparecer
+Button.MouseButton1Click:Connect(function()
+    sumindo = not sumindo
+    if sumindo then
+        Button.Text = "👁️ Voltar"
+        sumirJogadores()
+    else
+        Button.Text = "🫥 Sumir"
+        reaparecerJogadores()
+    end
+end)
