@@ -1,54 +1,59 @@
--- GUI móvel para sumir e reaparecer jogadores do seu mundo (com botão menor)
+-- Services
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
--- Criar GUI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "DesaparecerPlayersGUI"
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
 
-local Button = Instance.new("TextButton")
-Button.Size = UDim2.new(0, 120, 0, 35) -- BOTÃO MENOR
-Button.Position = UDim2.new(0.4, 0, 0.4, 0)
-Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button.Text = "🫥 Sumir"
-Button.Font = Enum.Font.SourceSansBold
-Button.TextSize = 18
-Button.Parent = ScreenGui
-Button.Active = true
-Button.Draggable = true
+-- GUI principal
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BlackScreenTroll"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = playerGui
 
-local sumindo = false
-local armazenados = {}
+-- Fundo preto cobrindo tudo
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(5,0,5,0) -- maior que a tela, pra garantir
+frame.Position = UDim2.new(-2,0,-2,0)
+frame.BackgroundColor3 = Color3.new(0,0,0)
+frame.Parent = screenGui
 
--- Função para sumir jogadores
-local function sumirJogadores()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character.Parent == workspace then
-            armazenados[player.Name] = player.Character
-            player.Character.Parent = nil
-        end
-    end
+-- Mensagens espalhadas cobrindo tudo
+for i = 1, 100 do
+    local msg = Instance.new("TextLabel")
+    msg.Size = UDim2.new(0, math.random(200,400), 0, math.random(50,150))
+    msg.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    msg.BackgroundTransparency = 1
+    msg.Text = "GO SKID FROM YOUR MOM, STUPID FOREIGNER"
+    msg.TextColor3 = Color3.new(1,1,1)
+    msg.TextScaled = true
+    msg.Font = Enum.Font.GothamBlack
+    msg.Rotation = math.random(-30,30)
+    msg.Parent = frame
 end
 
--- Função para reaparecer jogadores
-local function reaparecerJogadores()
-    for nome, character in pairs(armazenados) do
-        if Players:FindFirstChild(nome) and character then
-            character.Parent = workspace
-        end
-    end
-    armazenados = {}
-end
+-- Travar player
+humanoid.WalkSpeed = 0
+humanoid.JumpPower = 0
 
--- Alternar entre sumir e reaparecer
-Button.MouseButton1Click:Connect(function()
-    sumindo = not sumindo
-    if sumindo then
-        Button.Text = "👁️ Voltar"
-        sumirJogadores()
-    else
-        Button.Text = "🫥 Sumir"
-        reaparecerJogadores()
-    end
+-- Bug da câmera e movimento sozinho
+local cam = workspace.CurrentCamera
+RunService.RenderStepped:Connect(function()
+    -- câmera tremendo
+    cam.CFrame = cam.CFrame * CFrame.Angles(
+        math.rad(math.random(-2,2)), 
+        math.rad(math.random(-2,2)), 
+        0
+    )
+    -- mexer o player sozinho
+    hrp.CFrame = hrp.CFrame * CFrame.new(
+        math.random(-1,1) * 0.3, 
+        0, 
+        math.random(-1,1) * 0.3
+    )
 end)
